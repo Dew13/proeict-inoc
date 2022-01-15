@@ -185,9 +185,6 @@ counter = 0
 
 pressing_down = False
 
-th = threading.Thread(target=game.get_send_data())
-th.start()
-
 while not done:
     if game.figure is None:
         game.new_figure()
