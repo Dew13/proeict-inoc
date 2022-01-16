@@ -16,7 +16,7 @@ class ARFilter():
         self.capture = cv2.VideoCapture(0)
         self.img = None
         self.init_form()
-        print("\nSuccessfully initialized!\n")
+        print(f"\nSuccessfully initialized!\n")
         current_filter = str(self.filter).split("\\")[-1].split(".png")[0]
         print(f"\nCurrent filter: {current_filter}")
 
@@ -51,8 +51,10 @@ class ARFilter():
         current_filter = str(self.filter).split("\\")[-1].split(".png")[0]
         filename = datetime.now().strftime(f"%Y_%m_%d-%H_%M_%S_{current_filter}.jpg")
         filepath = f"../resources/snapshots/{filename}"
+
         if not (os.path.exists("../resources/snapshots/")):
             os.makedirs("../resources/snapshots/")
+
         self.img.save(filepath)
         print(f"\nSuccesfully saved {filepath}")
 
@@ -67,6 +69,7 @@ class ARFilter():
             self.filter = self.all_filters[0]
         else:
             self.filter = self.all_filters[current_index-1]
+
         current_filter = str(self.filter).split("\\")[-1].split(".png")[0]
         print(f"\nCurrent filter: {current_filter}")
 
@@ -81,6 +84,7 @@ class ARFilter():
             self.filter = self.all_filters[0]
         else:
             self.filter = self.all_filters[current_index+1]
+
         current_filter = str(self.filter).split("\\")[-1].split(".png")[0]
         print(f"\nCurrent filter: {current_filter}")
 
@@ -143,16 +147,16 @@ class ARFilter():
             witch_height = witch_y2 - witch_y1
 
             # Resize filter to fit on face
-            witch = cv2.resize(witch, (witch_width,witch_height), interpolation = cv2.INTER_AREA)
-            mask = cv2.resize(original_mask, (witch_width,witch_height), interpolation = cv2.INTER_AREA)
-            mask_inv = cv2.resize(original_mask_inv, (witch_width,witch_height), interpolation = cv2.INTER_AREA)
+            witch = cv2.resize(witch, (witch_width, witch_height), interpolation = cv2.INTER_AREA)
+            mask = cv2.resize(original_mask, (witch_width, witch_height), interpolation = cv2.INTER_AREA)
+            mask_inv = cv2.resize(original_mask_inv, (witch_width, witch_height), interpolation = cv2.INTER_AREA)
 
             # Take ROI for witch from background that is equal to size of filter image
             roi = img[witch_y1:witch_y2, witch_x1:witch_x2]
 
             # Original image in background (bg) where filter is not
-            roi_bg = cv2.bitwise_and(roi,roi,mask = mask)
-            roi_fg = cv2.bitwise_and(witch, witch,mask=mask_inv)
+            roi_bg = cv2.bitwise_and(roi, roi, mask = mask)
+            roi_fg = cv2.bitwise_and(witch, witch, mask = mask_inv)
             dst = cv2.add(roi_bg, roi_fg)
 
             # Put back in original image
