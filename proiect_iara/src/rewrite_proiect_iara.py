@@ -108,6 +108,7 @@ class ARFilter():
 
         # Find faces in image using classifier
         faces = self.face_cascade.detectMultiScale(gray, 1.2, 5)
+        print(len(faces))
 
         for (x, y, w, h) in faces:
             # Coordinates of face region
@@ -157,7 +158,6 @@ class ARFilter():
 
             # Put back in original image
             img[witch_y1:witch_y2, witch_x1:witch_x2] = dst
-            break
 
         # Display image
         img = Image.fromarray(img)
