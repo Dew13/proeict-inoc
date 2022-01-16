@@ -90,17 +90,17 @@ class ARFilter():
 
 
     # Capture frames and search for faces&eyes
-    def show_frames(self, witch):
-        b,g,r = cv2.split(witch)          
-        witch = cv2.merge([r,g,b])
+    def show_frames(self, current_filter):
+        b,g,r = cv2.split(current_filter)          
+        current_filter = cv2.merge([r,g,b])
         # Get shape of filter
-        original_witch_h, original_witch_w, _ = witch.shape
+        current_filter_h, current_filter_w, _ = current_filter.shape
 
         # Convert to gray
-        witch_gray = cv2.cvtColor(witch, cv2.COLOR_BGR2GRAY)
+        current_filter_gray = cv2.cvtColor(current_filter, cv2.COLOR_BGR2GRAY)
 
         # Create mask and inverse mask of filter
-        _, original_mask = cv2.threshold(witch_gray, 10, 255, cv2.THRESH_BINARY_INV)
+        _, original_mask = cv2.threshold(current_filter_gray, 10, 255, cv2.THRESH_BINARY_INV)
         original_mask_inv = cv2.bitwise_not(original_mask)
 
         # Read each frame of video and convert to BGR
@@ -123,44 +123,44 @@ class ARFilter():
             face_y2 = face_y1 + face_h
 
             # Filter size in relation to face by scaling
-            witch_width = int(1.5 * face_w)
-            witch_height = int(witch_width * original_witch_h / original_witch_w)
+            current_filter_width = int(1.5 * face_w)
+            current_filter_height = int(current_filter_width * current_filter_h / current_filter_w)
             
             # Setting location of coordinates of filter
-            witch_x1 = face_x2 - int(face_w / 2) - int(witch_width / 2)
-            witch_x2 = witch_x1 + witch_width
-            witch_y1 = face_y1 - int(face_h * 1.25)
-            witch_y2 = witch_y1 + witch_height 
+            current_filter_x1 = face_x2 - int(face_w / 2) - int(current_filter_width / 2)
+            current_filter_x2 = current_filter_x1 + current_filter_width
+            current_filter_y1 = face_y1 - int(face_h * 1.25)
+            current_filter_y2 = current_filter_y1 + current_filter_height 
 
             # Check to see if out of frame
-            if witch_x1 < 0:
-                witch_x1 = 0
-            if witch_y1 < 0:
-                witch_y1 = 0
-            if witch_x2 > img_w:
-                witch_x2 = img_w
-            if witch_y2 > img_h:
-                witch_y2 = img_h
+            if current_filter_x1 < 0:
+                current_filter_x1 = 0
+            if current_filter_y1 < 0:
+                current_filter_y1 = 0
+            if current_filter_x2 > img_w:
+                current_filter_x2 = img_w
+            if current_filter_y2 > img_h:
+                current_filter_y2 = img_h
 
             # Account for any out of frame changes
-            witch_width = witch_x2 - witch_x1
-            witch_height = witch_y2 - witch_y1
+            current_filter_width = current_filter_x2 - current_filter_x1
+            current_filter_height = current_filter_y2 - current_filter_y1
 
             # Resize filter to fit on face
-            witch = cv2.resize(witch, (witch_width, witch_height), interpolation = cv2.INTER_AREA)
-            mask = cv2.resize(original_mask, (witch_width, witch_height), interpolation = cv2.INTER_AREA)
-            mask_inv = cv2.resize(original_mask_inv, (witch_width, witch_height), interpolation = cv2.INTER_AREA)
+            current_filter = cv2.resize(current_filter, (current_filter_width, current_filter_height), interpolation = cv2.INTER_AREA)
+            mask = cv2.resize(original_mask, (current_filter_width, current_filter_height), interpolation = cv2.INTER_AREA)
+            mask_inv = cv2.resize(original_mask_inv, (current_filter_width, current_filter_height), interpolation = cv2.INTER_AREA)
 
-            # Take ROI for witch from background that is equal to size of filter image
-            roi = img[witch_y1:witch_y2, witch_x1:witch_x2]
+            # Take ROI for current_filter from background that is equal to size of filter image
+            roi = img[current_filter_y1:current_filter_y2, current_filter_x1:current_filter_x2]
 
             # Original image in background (bg) where filter is not
             roi_bg = cv2.bitwise_and(roi, roi, mask = mask)
-            roi_fg = cv2.bitwise_and(witch, witch, mask = mask_inv)
+            roi_fg = cv2.bitwise_and(current_filter, current_filter, mask = mask_inv)
             dst = cv2.add(roi_bg, roi_fg)
 
             # Put back in original image
-            img[witch_y1:witch_y2, witch_x1:witch_x2] = dst
+            img[current_filter_y1:current_filter_y2, current_filter_x1:current_filter_x2] = dst
 
         # Display image
         img = Image.fromarray(img)
